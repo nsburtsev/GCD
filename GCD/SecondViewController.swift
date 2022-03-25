@@ -36,8 +36,18 @@ class SecondViewController: UIViewController {
         imageURL = URL(string: "https://upload.wikimedia.org/wikipedia/commons/0/07/Huge_ball_at_Vilnius_center.jpg")
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
-        guard let url = imageURL, let imageData = try? Data(contentsOf: url) else { return }
-        self.image = UIImage(data: imageData)
+        
+        //Помещаем процесс загрузки в другой поток
+        //Создаем очередь
+        let queue = DispatchQueue.global(qos: .utility)
+        //Добавляем процесс в очередь
+        queue.async {
+            guard let url = self.imageURL, let imageData = try? Data(contentsOf: url) else { return }
+            //Возвращаем в главный поток
+            DispatchQueue.main.async {
+                self.image = UIImage(data: imageData)
+            }
+        }
     }
 }
 
